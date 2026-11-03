@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FinanQuiz: aprende economia jugando con bot competitivo." />
+  <title>FinanQuiz | Aprende jugando</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="menu.css">
+</head>
+<body>
+  <main class="app-shell">
+    <div class="texture" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <button class="brand" type="button" data-view="home" aria-label="Volver al menu principal">
+        <img src="../Recursos%20graficos/Logo.png" alt="FinanQuiz">
+      </button>
+      <nav class="main-nav" aria-label="Navegacion principal">
+        <button type="button" data-view="login">Unirse</button>
+        <button type="button" data-view="options">Opciones</button>
+        <button type="button" data-view="register">Crear</button>
+      </nav>
+    </header>
+
+    <div class="page-content">
+      <section class="view home-view" data-screen="home" aria-labelledby="home-title">
+        <div class="home-copy">
+          <h1 id="home-title">¡Bienvenido a FinanQuiz!</h1>
+          <button class="button button-primary" type="button" data-view="instructions">Empezar</button>
+        </div>
+
+        <div class="home-cards">
+          <article>
+            <img src="../Recursos%20graficos/Rectangle 69.png" alt="Grafico de economia">
+            <h2>¿Qué está pasando con la economía?</h2>
+            <p>Aprende sobre las acciones de economía en el temario pre-creado “Acciones e inversiones”</p>
+          </article>
+          <article>
+            <img src="../Recursos%20graficos/Rectangle 70.png" alt="Informacion">
+            <h2>¿No sabes como empezar?</h2>
+            <p>Si necesitas ayuda por el funcionamiento o dudas, presiona el icono de soporte a la izquierda.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="view options-view" data-screen="options" aria-labelledby="options-title" hidden>
+        <div class="options-panel">
+          <div class="options-heading">
+            <p class="eyebrow"><span class="eyebrow-line"></span>Personaliza tu experiencia</p>
+            <h1 id="options-title">Opciones</h1>
+            <p>Guarda tus preferencias para que FinanQuiz se sienta más tuyo.</p>
+          </div>
+
+          <div class="settings-list">
+            <div class="setting-row">
+              <div>
+                <h2>Tema oscuro</h2>
+                <p>Cambia entre una apariencia clara y oscura.</p>
+              </div>
+              <label class="toggle-control" for="theme-toggle">
+                <input id="theme-toggle" type="checkbox">
+                <span class="toggle-slider" aria-hidden="true"></span>
+                <span class="sr-only">Activar tema oscuro</span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <h2>Animaciones</h2>
+                <p>Reduce los movimientos de la interfaz si lo prefieres.</p>
+              </div>
+              <label class="toggle-control" for="motion-toggle">
+                <input id="motion-toggle" type="checkbox" checked>
+                <span class="toggle-slider" aria-hidden="true"></span>
+                <span class="sr-only">Activar animaciones</span>
+              </label>
+            </div>
+          </div>
+
+          <form class="password-form" id="password-form" novalidate>
+            <div class="options-section-heading">
+              <h2>Cambiar contraseña</h2>
+              <p>Usa al menos 6 caracteres.</p>
+            </div>
+            <label for="current-password">Contraseña actual</label>
+            <input id="current-password" name="currentPassword" type="password" autocomplete="current-password" minlength="6" required>
+            <small class="field-error" data-error-for="current-password"></small>
+
+            <label for="new-password">Nueva contraseña</label>
+            <input id="new-password" name="newPassword" type="password" autocomplete="new-password" minlength="6" required>
+            <small class="field-error" data-error-for="new-password"></small>
+
+            <label for="confirm-password">Repetir nueva contraseña</label>
+            <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="6" required>
+            <small class="field-error" data-error-for="confirm-password"></small>
+
+            <button class="button button-primary" type="submit">Guardar contraseña</button>
+            <p class="form-status" id="password-status" role="status" aria-live="polite"></p>
+          </form>
+
+          <div class="options-footer">
+            <button class="button button-secondary" id="reset-preferences-btn" type="button">Restablecer preferencias</button>
+            <button class="back-link" type="button" data-view="home">← Volver al menú</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="view instructions-view" data-screen="instructions" aria-labelledby="instructions-title" hidden>
+        <div class="instructions-panel">
+          <div class="instructions-heading">
+            <p class="instructions-kicker">ANTES DE EMPEZAR</p>
+            <h1 id="instructions-title">¿Cómo se juega?</h1>
+            <p class="instructions-progress" id="instructions-progress" aria-live="polite">1 / 3</p>
+          </div>
+
+          <div class="instruction-slides" aria-live="polite">
+            <article class="instruction-slide instruction-slide-with-example" data-instruction-slide="0">
+              <div class="instruction-example">
+                <div>
+                  <span class="instruction-number">01</span>
+                  <h2>Lee cada afirmación</h2>
+                  <p>En cada turno aparecerá una frase sobre economía y finanzas. Tómate un momento para pensarla.</p>
+                </div>
+                <img class="instruction-example-image" src="../Recursos%20graficos/Pregunta%201.png" alt="Ejemplo de una pregunta de verdadero o falso">
+              </div>
+            </article>
+            <article class="instruction-slide instruction-slide-with-example" data-instruction-slide="1" hidden>
+              <div class="instruction-example">
+                <div>
+                  <span class="instruction-number">02</span>
+                  <h2>Piensa antes de decidir</h2>
+                  <p>En algunas situaciones tendras que priorizar gastos, cuidar tus recursos y elegir la opcion mas conveniente. En otras, identificaras si una conducta es prudente o arriesgada.</p>
+                </div>
+                <img class="instruction-example-image" src="../Recursos%20graficos/Referencia3.PNG" alt="Ejemplo de una situacion financiera">
+              </div>
+            </article>
+            <article class="instruction-slide" data-instruction-slide="2" hidden>
+              <span class="instruction-number">03</span>
+              <h2>¡Suma puntos y supera al bot!</h2>
+              <p>Juega cinco niveles, acumula puntos con tus aciertos y termina con una puntuación mayor que la del bot.</p>
+            </article>
+          </div>
+
+          <div class="instructions-actions">
+            <button class="instructions-skip" type="button" data-view="level1">Saltar</button>
+            <div class="instructions-navigation">
+              <button class="button button-secondary" id="instructions-prev" type="button" hidden>Anterior</button>
+              <button class="button button-primary" id="instructions-next" type="button">Siguiente</button>
+              <button class="button button-primary" id="instructions-start" type="button" data-view="level1" hidden>Jugar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view form-view" data-screen="login" aria-labelledby="login-title" hidden>
+        <div class="form-side">
+          <p class="eyebrow"><span class="eyebrow-line"></span>Que bueno verte otra vez</p>
+          <h1>Volve a<br><em>jugar.</em></h1>
+          <p class="side-copy">Tus desafios, tu progreso y todo lo que aprendiste te estan esperando.</p>
+          <div class="side-stat"><strong>12</strong><span>desafios nuevos<br>esta semana</span></div>
+        </div>
+
+        <form class="auth-form" id="login-form" novalidate>
+          <div class="form-heading">
+            <span class="step">01 / 02</span>
+            <h2 id="login-title">Inicio de sesion</h2>
+            <p>Ingresa tus datos para continuar.</p>
+          </div>
+
+          <label for="login-email">Usuario o email <span>*</span></label>
+          <input id="login-email" name="email" type="email" placeholder="tu@email.com" autocomplete="email" required>
+          <small class="field-error" data-error-for="login-email"></small>
+
+          <label for="login-password">Contrasena <span>*</span></label>
+          <input id="login-password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
+          <small class="field-error" data-error-for="login-password"></small>
+
+          <button class="button button-primary form-submit" type="submit">Iniciar sesion <span aria-hidden="true">↗</span></button>
+
+          <p class="form-switch">No tenes cuenta? <button type="button" data-view="register">Registrate aca</button></p>
+          <button class="back-link" type="button" data-view="home">← Volver al menu</button>
+          <p class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="view form-view" data-screen="register" aria-labelledby="register-title" hidden>
+        <div class="form-side">
+          <p class="eyebrow"><span class="eyebrow-line"></span>El primer paso es tuyo</p>
+          <h1>Hace que<br><em>rinda.</em></h1>
+          <p class="side-copy">Una cuenta. Cientos de preguntas. Una nueva forma de mirar tus finanzas.</p>
+          <div class="side-stat"><strong>100%</strong><span>gratis para<br>empezar</span></div>
+        </div>
+
+        <form class="auth-form register-form" id="register-form" novalidate>
+          <div class="form-heading">
+            <span class="step">02 / 02</span>
+            <h2 id="register-title">Registrarse</h2>
+            <p>Crea tu perfil en menos de un minuto.</p>
+          </div>
+
+          <label for="register-name">Nombre completo <span>*</span></label>
+          <input id="register-name" name="name" type="text" placeholder="Tu nombre" autocomplete="name" required>
+          <small class="field-error" data-error-for="register-name"></small>
+
+          <label for="register-email">Email <span>*</span></label>
+          <input id="register-email" name="email" type="email" placeholder="tu@email.com" autocomplete="email" required>
+          <small class="field-error" data-error-for="register-email"></small>
+
+          <div class="field-row">
+            <div>
+              <label for="register-password">Contrasena <span>*</span></label>
+              <input id="register-password" name="password" type="password" placeholder="Minimo 6 caracteres" minlength="6" required>
+              <small class="field-error" data-error-for="register-password"></small>
+            </div>
+            <div>
+              <label for="register-confirm">Repetir contrasena <span>*</span></label>
+              <input id="register-confirm" name="confirm" type="password" placeholder="Repetila" minlength="6" required>
+              <small class="field-error" data-error-for="register-confirm"></small>
+            </div>
+          </div>
+
+          <button class="button button-primary form-submit" type="submit">Crear cuenta <span aria-hidden="true">↗</span></button>
+          <p class="form-switch">Ya tenes cuenta? <button type="button" data-view="login">Inicia sesion</button></p>
+          <button class="back-link" type="button" data-view="home">← Volver al menu</button>
+          <p class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="view level1-view" data-screen="level1" aria-label="Nivel" hidden>
+        <div class="level1-board">
+          <div class="level1-scoreboard">
+            <div class="scoreboard-player">
+              <div class="player-name">TÚ</div>
+              <div class="player-score" id="user-score">0</div>
+            </div>
+            <div class="scoreboard-vs">VS</div>
+            <div class="scoreboard-player">
+              <div class="player-name">BOT</div>
+              <div class="player-score" id="bot-score">0</div>
+            </div>
+          </div>
+
+          <div class="game-controls" aria-label="Controles del juego">
+            <button class="utility-button" id="pause-game-btn" type="button">Pausar</button>
+            <button class="utility-button" id="hint-btn" type="button">Pista</button>
+            <button class="utility-button utility-danger" id="restart-game-btn" type="button">Reiniciar</button>
+          </div>
+
+          <div class="hint-panel" id="hint-panel" hidden aria-live="polite"></div>
+
+          <div class="level1-indicator" id="level1-indicator">Nivel 1 • Pregunta N°1</div>
+
+          <div class="matching-level" id="matching-level" hidden>
+            <div class="matching-heading">
+              <p class="matching-kicker">Nivel 2 • Conecta conceptos</p>
+              <h2>Une cada palabra con su definición</h2>
+              <p>Conecta los cables correctos para completar el nivel.</p>
+              <div class="matching-score" id="matching-score">0/5 conexiones</div>
+            </div>
+            <div class="matching-board" id="matching-board">
+              <svg class="matching-lines" id="matching-lines" aria-hidden="true"></svg>
+              <div class="matching-column">
+                <h3>Palabras</h3>
+                <div class="matching-options" id="matching-terms"></div>
+              </div>
+              <div class="matching-column">
+                <h3>Definiciones</h3>
+                <div class="matching-options" id="matching-definitions"></div>
+              </div>
+            </div>
+            <p class="matching-feedback" id="matching-feedback" aria-live="polite"></p>
+          </div>
+
+          <div class="budget-level" id="budget-level" hidden>
+            <div class="budget-heading">
+              <p class="budget-kicker">Nivel 3 • Decide tu presupuesto</p>
+              <h2 id="budget-scenario-title">Tu dinero, tus decisiones</h2>
+              <p id="budget-scenario-text">Elige la opcion mas conveniente para cuidar tus finanzas.</p>
+              <div class="budget-timer" id="budget-timer" aria-live="polite">8</div>
+            </div>
+            <div class="budget-summary">
+              <div><span>Ingreso inicial</span><strong id="budget-income">$1000</strong></div>
+              <div><span>Saldo actual</span><strong id="budget-remaining">$1000</strong></div>
+              <div><span>Decisiones</span><strong id="budget-spent">0/5</strong></div>
+            </div>
+            <div class="budget-meter"><span id="budget-meter-fill"></span></div>
+            <div class="budget-expenses" id="budget-expenses"></div>
+            <p class="budget-feedback" id="budget-feedback" aria-live="polite"></p>
+          </div>
+
+          <div class="portfolio-level" id="portfolio-level" hidden>
+            <div class="portfolio-heading">
+              <p class="portfolio-kicker">Nivel 4 • Semáforo financiero</p>
+              <h2>Detecta buenas y malas decisiones</h2>
+              <p>Lee cada caso y clasifícalo usando lo aprendido sobre ahorro, deuda, presupuesto e inversión.</p>
+            </div>
+            <div class="portfolio-summary">
+              <div><span>Casos</span><strong id="portfolio-allocated">0/5</strong></div>
+              <div><span>Aciertos</span><strong id="portfolio-remaining">0 aciertos</strong></div>
+              <div><span>Meta</span><strong>3 aciertos</strong></div>
+            </div>
+            <div class="portfolio-assets" id="portfolio-assets"></div>
+            <button class="button button-primary portfolio-submit" id="portfolio-submit" type="button" hidden>Confirmar</button>
+            <p class="portfolio-feedback" id="portfolio-feedback" aria-live="polite"></p>
+          </div>
+
+          <div class="priorities-level" id="priorities-level" hidden>
+            <div class="priorities-heading">
+              <p class="priorities-kicker">Nivel 5 • Reto de prioridades</p>
+              <h2 id="priorities-title">¿Qué harías primero?</h2>
+              <p id="priorities-text">Ordena tus decisiones con lo aprendido durante la partida.</p>
+            </div>
+            <div class="priorities-summary">
+              <div><span>Situación</span><strong id="priorities-progress">1/5</strong></div>
+              <div><span>Aciertos</span><strong id="priorities-score">0 aciertos</strong></div>
+              <div><span>Tiempo</span><strong class="priorities-timer" id="priorities-timer">10</strong></div>
+            </div>
+            <div class="priorities-options" id="priorities-options"></div>
+            <p class="priorities-feedback" id="priorities-feedback" aria-live="polite"></p>
+          </div>
+
+          <div class="level1-banner">
+            <h2 id="level1-question-title">¿Verdadero o Falso?</h2>
+          </div>
+
+          <div class="level1-body">
+            <button class="choice-button choice-correct" type="button" aria-label="Respuesta correcta">
+              <span class="choice-mark">✓</span>
+            </button>
+
+            <div class="level1-card">
+              <div class="card-topline" aria-hidden="true"></div>
+              <p id="level1-statement">La economia se encarga de administrar los recursos de las personas</p>
+            </div>
+
+            <button class="choice-button choice-wrong" type="button" aria-label="Respuesta incorrecta">
+              <span class="choice-mark">✕</span>
+            </button>
+          </div>
+
+          <div class="level1-progress" id="level1-progress">1/5</div>
+          <div class="bot-thinking" id="bot-thinking" hidden>BOT está pensando...</div>
+        </div>
+      </section>
+
+      <div class="pause-overlay" id="pause-overlay" hidden>
+        <div class="pause-card" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+          <p class="pause-label">Juego pausado</p>
+          <h3 id="pause-title">Partida en pausa</h3>
+          <p class="pause-copy">Puedes continuar cuando quieras o reiniciar la sesión desde cero.</p>
+          <div class="pause-actions">
+            <button class="button button-primary" id="resume-game-btn" type="button">Continuar</button>
+            <button class="button button-secondary" id="menu-game-btn" type="button">Menú</button>
+            <button class="button button-danger" id="pause-restart-btn" type="button">Reiniciar sesión</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="view results-view" data-screen="results" aria-labelledby="results-title" hidden>
+        <div class="results-board">
+          <div class="results-header">
+            <h1 id="results-title">Resultados Finales</h1>
+          </div>
+
+          <div class="results-container">
+            <div class="results-player">
+              <div class="results-name">TÚ</div>
+              <div class="results-score" id="results-user-score">0</div>
+              <div class="results-label">Puntos</div>
+
+              <div class="results-details">
+                <div class="result-stat">
+                  <span class="stat-label">Correctas:</span>
+                  <span class="stat-value" id="results-user-correct">0</span>
+                </div>
+                <div class="result-stat">
+                  <span class="stat-label">Incorrectas:</span>
+                  <span class="stat-value" id="results-user-wrong">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="results-divider"></div>
+
+            <div class="results-player">
+              <div class="results-name">BOT</div>
+              <div class="results-score" id="results-bot-score">0</div>
+              <div class="results-label">Puntos</div>
+
+              <div class="results-details">
+                <div class="result-stat">
+                  <span class="stat-label">Correctas:</span>
+                  <span class="stat-value" id="results-bot-correct">0</span>
+                </div>
+                <div class="result-stat">
+                  <span class="stat-label">Incorrectas:</span>
+                  <span class="stat-value" id="results-bot-wrong">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-winner">
+            <div class="winner-message" id="winner-message">EMPATE</div>
+          </div>
+
+          <div class="results-actions">
+            <button class="button button-primary" type="button" data-view="home">Volver al Menú</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="site-footer" aria-hidden="true"></footer>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
