@@ -18,6 +18,8 @@ function getQuestionTitle(questionIndex) {
 
 const levelConfig = [
   {
+    id: 'level-1',
+    type: 'true-false',
     name: 'Nivel 1',
     points: 10,
     questions: [
@@ -29,6 +31,8 @@ const levelConfig = [
     ]
   },
   {
+    id: 'level-2',
+    type: 'matching',
     name: 'Nivel 2',
     points: 20,
     questions: [
@@ -40,6 +44,8 @@ const levelConfig = [
     ]
   },
   {
+    id: 'level-3',
+    type: 'budget',
     name: 'Nivel 3',
     points: 15,
     questions: [
@@ -51,6 +57,8 @@ const levelConfig = [
     ]
   },
   {
+    id: 'level-4',
+    type: 'portfolio',
     name: 'Nivel 4',
     points: 30,
     questions: [
@@ -62,6 +70,8 @@ const levelConfig = [
     ]
   },
   {
+    id: 'level-5',
+    type: 'priorities',
     name: 'Nivel 5',
     points: 25,
     questions: [
@@ -75,6 +85,8 @@ const levelConfig = [
 ];
 
 const views = document.querySelectorAll('[data-screen]');
+const topbar = document.querySelector('.topbar');
+const createRoomNav = document.getElementById('create-room-nav');
 const levelIndicator = document.getElementById('level1-indicator');
 const levelTitle = document.getElementById('level1-question-title');
 const levelStatement = document.getElementById('level1-statement');
@@ -138,9 +150,21 @@ const instructionNextBtn = document.getElementById('instructions-next');
 const instructionStartBtn = document.getElementById('instructions-start');
 const themeToggle = document.getElementById('theme-toggle');
 const motionToggle = document.getElementById('motion-toggle');
+const passwordToggle = document.getElementById('password-toggle');
 const passwordForm = document.getElementById('password-form');
 const passwordStatus = document.getElementById('password-status');
+const optionsImportEl = document.getElementById('options-import');
+const jsonFileInput = document.getElementById('json-file');
+const jsonStatus = document.getElementById('json-status');
 const resetPreferencesBtn = document.getElementById('reset-preferences-btn');
+const createRoomForm = document.getElementById('create-room-form');
+const createRoomStatus = document.getElementById('create-room-status');
+const joinRoomForm = document.getElementById('join-room-form');
+const joinRoomStatus = document.getElementById('join-room-status');
+const roomLevelList = document.getElementById('room-level-list');
+const ADMIN_EMAIL = 'admin@gmail.com';
+const ADMIN_PASSWORD = '1234';
+const ROOM_STORAGE_KEY = 'finanquiz-room';
 let instructionSlideIndex = 0;
 
 const state = {
@@ -163,7 +187,8 @@ const state = {
   matchingGame: null,
   budgetGame: null,
   portfolioGame: null,
-  prioritiesGame: null
+  prioritiesGame: null,
+  activeLevels: []
 };
 
 const budgetScenarios = [
@@ -238,12 +263,39 @@ function shuffleQuestions(questions) {
   return shuffled;
 }
 
+function getStoredRoom() {
+  const storedRoom = localStorage.getItem(ROOM_STORAGE_KEY);
+  if (!storedRoom) return null;
+
+  try {
+    const room = JSON.parse(storedRoom);
+    return room && Array.isArray(room.levelIds) ? room : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function getDefaultLevels() {
+  return [...levelConfig];
+}
+
+function getConfiguredLevels() {
+  const room = getStoredRoom();
+  if (!room || !room.levelIds.length) return getDefaultLevels();
+
+  const configuredLevels = room.levelIds
+    .map((levelId) => levelConfig.find((level) => level.id === levelId))
+    .filter(Boolean);
+  return configuredLevels.length ? configuredLevels : getDefaultLevels();
+}
+
 function resetGameState() {
   if (state.budgetGame?.timerId) clearInterval(state.budgetGame.timerId);
   if (state.prioritiesGame?.timerId) clearInterval(state.prioritiesGame.timerId);
   state.levelIndex = 0;
   state.questionIndex = 0;
-  state.questionsByLevel = levelConfig.map((level) => shuffleQuestions(level.questions));
+  state.activeLevels = getConfiguredLevels();
+  state.questionsByLevel = state.activeLevels.map((level) => shuffleQuestions(level.questions));
   state.userScore = 0;
   state.botScore = 0;
   state.userCorrect = 0;
@@ -271,6 +323,13 @@ function clamp(value, min, max) {
 }
 
 function setView(name) {
+  const protectedViews = ['home', 'options', 'instructions', 'level1', 'results'];
+  if (protectedViews.includes(name) && !isAuthenticated()) {
+    name = 'login';
+  }
+
+  topbar.classList.toggle('auth-mode', name === 'login' || name === 'register');
+  updateAdminOnlyOptions();
   views.forEach((view) => {
     view.hidden = view.dataset.screen !== name;
   });
@@ -308,25 +367,25 @@ function canUseHint() {
 }
 
 function renderLevelQuestion() {
-  const level = levelConfig[state.levelIndex];
+  const level = state.activeLevels[state.levelIndex];
   if (!level) return;
 
-  if (state.levelIndex === 1) {
+  if (level.type === 'matching') {
     renderMatchingLevel();
     return;
   }
 
-  if (state.levelIndex === 2) {
+  if (level.type === 'budget') {
     renderBudgetLevel();
     return;
   }
 
-  if (state.levelIndex === 3) {
+  if (level.type === 'portfolio') {
     renderPortfolioLevel();
     return;
   }
 
-  if (state.levelIndex === 4) {
+  if (level.type === 'priorities') {
     renderPrioritiesLevel();
     return;
   }
@@ -433,7 +492,7 @@ function resolveMatchingConnection() {
   const term = game.selectedTerm;
   const definition = game.selectedDefinition;
   const isCorrect = term === definition;
-  const pointsPerConnection = levelConfig[1].points / game.pairs.length;
+  const pointsPerConnection = state.activeLevels[state.levelIndex].points / game.pairs.length;
 
   game.attempts += 1;
   game.connections.push({ term, definition, isCorrect });
@@ -503,7 +562,7 @@ function drawMatchingLines() {
 }
 
 function finishMatchingLevel() {
-  const level = levelConfig[1];
+  const level = state.activeLevels[state.levelIndex];
   const game = state.matchingGame;
   state.levelResults.push({
     level: level.name,
@@ -641,7 +700,7 @@ function chooseBudgetOption(option, timedOut = false) {
 }
 
 function finishBudgetLevel(userCorrect) {
-  const level = levelConfig[2];
+  const level = state.activeLevels[state.levelIndex];
   const game = state.budgetGame;
   const botCorrect = game.botSmartChoices >= 3;
   if (userCorrect) {
@@ -759,7 +818,7 @@ function chooseFinancialSignal(answer) {
 }
 
 function finishPortfolioLevel(userCorrect, botCorrect) {
-  const level = levelConfig[3];
+  const level = state.activeLevels[state.levelIndex];
   const game = state.portfolioGame;
   if (userCorrect) state.userScore += level.points;
   else state.userScore -= level.points;
@@ -933,7 +992,7 @@ function choosePriority(answer, timedOut = false) {
 }
 
 function finishPrioritiesLevel() {
-  const level = levelConfig[4];
+  const level = state.activeLevels[state.levelIndex];
   const game = state.prioritiesGame;
   const userCorrect = game.correctAnswers >= 3;
   const botCorrect = game.botCorrectAnswers >= 3;
@@ -962,7 +1021,7 @@ function getBotAnswerChance() {
 }
 
 function togglePause(forceState) {
-  if (state.levelIndex >= levelConfig.length) return;
+  if (state.levelIndex >= state.activeLevels.length) return;
 
   const shouldPause = typeof forceState === 'boolean' ? forceState : !state.isPaused;
   state.isPaused = shouldPause;
@@ -984,7 +1043,7 @@ function useHint() {
 function answerQuestion(userChoice) {
   if (state.isPaused) return;
 
-  const level = levelConfig[state.levelIndex];
+  const level = state.activeLevels[state.levelIndex];
   const question = getCurrentQuestion();
   if (!question) return;
 
@@ -1039,7 +1098,7 @@ function answerQuestion(userChoice) {
 }
 
 function finishLevel() {
-  const level = levelConfig[state.levelIndex];
+  const level = state.activeLevels[state.levelIndex];
   const userLevelCorrect = state.levelUserCorrect;
   const botLevelCorrect = state.levelBotCorrect;
 
@@ -1066,7 +1125,7 @@ function finishLevel() {
   userScoreEl.textContent = state.userScore;
   botScoreEl.textContent = state.botScore;
 
-  if (state.levelIndex >= levelConfig.length) {
+  if (state.levelIndex >= state.activeLevels.length) {
     setView('results');
     return;
   }
@@ -1094,20 +1153,97 @@ function renderResults() {
 function applyPreferences() {
   const savedTheme = localStorage.getItem('finanquiz-theme') || 'light';
   const savedMotion = localStorage.getItem('finanquiz-motion') || 'on';
+  const showPasswordForm = localStorage.getItem('finanquiz-show-password-form') === 'true';
   document.body.dataset.theme = savedTheme;
   document.body.dataset.motion = savedMotion === 'off' ? 'reduced' : 'full';
   themeToggle.checked = savedTheme === 'dark';
   motionToggle.checked = savedMotion !== 'off';
+  passwordToggle.checked = showPasswordForm;
+  passwordForm.hidden = !showPasswordForm;
+  updateAdminOnlyOptions();
 }
 
 function getStoredProfile() {
-  const profile = localStorage.getItem('finanquiz-profile');
-  return profile ? JSON.parse(profile) : null;
+  const sessionEmail = localStorage.getItem('finanquiz-session');
+  const users = getStoredUsers();
+  const storedProfile = localStorage.getItem('finanquiz-profile');
+  let profile = null;
+  if (storedProfile) {
+    try {
+      profile = JSON.parse(storedProfile);
+    } catch (error) {
+      profile = null;
+    }
+  }
+  return (profile && profile.email === sessionEmail ? profile : null)
+    || users.find((user) => user.email === sessionEmail)
+    || null;
+}
+
+function isAdminSession() {
+  const profile = getStoredProfile();
+  return Boolean(
+    profile
+    && normalizeEmail(profile.email) === ADMIN_EMAIL
+    && profile.password === ADMIN_PASSWORD
+  );
+}
+
+function updateAdminOnlyOptions() {
+  optionsImportEl.hidden = !isAdminSession();
+  createRoomNav.hidden = !isAdminSession();
+}
+
+function getStoredUsers() {
+  const storedUsers = localStorage.getItem('finanquiz-users');
+  if (storedUsers) {
+    try {
+      return JSON.parse(storedUsers);
+    } catch (error) {
+      return [];
+    }
+  }
+
+  const legacyProfile = localStorage.getItem('finanquiz-profile');
+  if (!legacyProfile) return [];
+
+  try {
+    const profile = JSON.parse(legacyProfile);
+    return profile.email ? [profile] : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveUsers(users) {
+  localStorage.setItem('finanquiz-users', JSON.stringify(users));
+}
+
+function normalizeEmail(value) {
+  return value.trim().toLowerCase();
+}
+
+function isAuthenticated() {
+  return Boolean(getStoredProfile());
 }
 
 document.querySelectorAll('[data-view]').forEach((control) => {
   control.addEventListener('click', () => {
+    if (control.classList.contains('brand') && topbar.classList.contains('auth-mode')) {
+      return;
+    }
+
     const viewName = control.dataset.view;
+
+    if (viewName === 'create-room' && !isAdminSession()) {
+      setView('home');
+      return;
+    }
+
+    if (viewName === 'instructions' && getStoredRoom() && !isAdminSession()) {
+      setView('join-room');
+      return;
+    }
 
     if (viewName === 'home') {
       resetGameState();
@@ -1150,8 +1286,14 @@ document.querySelectorAll('.choice-button').forEach((button) => {
 document.querySelectorAll('.auth-form').forEach((form) => {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    if (form.id === 'create-room-form' || form.id === 'join-room-form') return;
     const status = form.querySelector('.form-status');
     const inputs = form.querySelectorAll('input');
+    const submittedEmail = normalizeEmail(form.querySelector('[name="email"]').value);
+    const submittedPassword = form.querySelector('[name="password"]').value;
+    const isAdminLogin = form.id === 'login-form'
+      && submittedEmail === ADMIN_EMAIL
+      && submittedPassword === ADMIN_PASSWORD;
 
     let valid = true;
     inputs.forEach((input) => {
@@ -1161,7 +1303,11 @@ document.querySelectorAll('.auth-form').forEach((form) => {
         message = 'Este campo es obligatorio.';
       } else if (input.type === 'email' && !input.validity.valid) {
         message = 'Ingresa un email valido.';
-      } else if (input.minLength && input.value.length < input.minLength) {
+      } else if (
+        input.minLength
+        && input.value.length < input.minLength
+        && !(isAdminLogin && input.id === 'login-password')
+      ) {
         message = `Usa al menos ${input.minLength} caracteres.`;
       }
 
@@ -1187,18 +1333,124 @@ document.querySelectorAll('.auth-form').forEach((form) => {
       return;
     }
 
-    status.textContent = form.id === 'login-form'
-      ? 'Datos correctos. Bienvenido a FinanQuiz.'
-      : 'Cuenta creada. Ya podes empezar a jugar.';
-    status.className = 'form-status is-success';
+    const loginValue = submittedEmail;
+    const email = loginValue;
+    const users = getStoredUsers();
+    const existingUser = users.find((user) => (
+      user.email === loginValue || normalizeEmail(user.name) === loginValue
+    ));
 
-    localStorage.setItem('finanquiz-profile', JSON.stringify({
-      name: form.querySelector('[name="name"]')?.value || '',
-      email: form.querySelector('[name="email"]').value,
-      password: password.value
-    }));
+    if (form.id === 'login-form') {
+      if (isAdminLogin) {
+        const adminProfile = {
+          name: 'Administrador',
+          email: ADMIN_EMAIL,
+          password: ADMIN_PASSWORD,
+          role: 'admin'
+        };
+        localStorage.setItem('finanquiz-session', ADMIN_EMAIL);
+        localStorage.setItem('finanquiz-profile', JSON.stringify(adminProfile));
+        status.textContent = 'Bienvenido, administrador.';
+        status.className = 'form-status is-success';
+        form.reset();
+        updateAdminOnlyOptions();
+        setView('home');
+        return;
+      }
+
+      if (!existingUser || existingUser.password !== password.value) {
+        status.textContent = 'El usuario o la contraseña no son correctos.';
+        status.className = 'form-status is-error';
+        return;
+      }
+      localStorage.setItem('finanquiz-session', existingUser.email);
+      localStorage.setItem('finanquiz-profile', JSON.stringify(existingUser));
+      status.textContent = `Bienvenido, ${existingUser.name}.`;
+    } else {
+      if (existingUser || users.some((user) => normalizeEmail(user.name) === email)) {
+        status.textContent = 'Ya existe una cuenta con ese email.';
+        status.className = 'form-status is-error';
+        return;
+      }
+      const newUser = {
+        name: form.querySelector('[name="name"]').value.trim(),
+        email,
+        password: password.value,
+        role: 'alumno'
+      };
+      users.push(newUser);
+      saveUsers(users);
+      localStorage.setItem('finanquiz-session', email);
+      localStorage.setItem('finanquiz-profile', JSON.stringify(newUser));
+      status.textContent = 'Cuenta creada. Ya podes empezar a jugar.';
+    }
+    status.className = 'form-status is-success';
     form.reset();
+    updateAdminOnlyOptions();
+    setView('home');
   });
+});
+
+roomLevelList.querySelectorAll('button').forEach((button) => {
+  button.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const row = button.closest('.room-level-row');
+    const target = button.classList.contains('room-move-up') ? row.previousElementSibling : row.nextElementSibling;
+    if (!target) return;
+    if (button.classList.contains('room-move-up')) {
+      roomLevelList.insertBefore(row, target);
+    } else {
+      roomLevelList.insertBefore(target, row);
+    }
+  });
+});
+
+createRoomForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (!isAdminSession()) {
+    createRoomStatus.textContent = 'Solo el administrador puede crear salas.';
+    createRoomStatus.className = 'form-status is-error';
+    return;
+  }
+
+  const levelIds = [...roomLevelList.querySelectorAll('.room-level-row')]
+    .filter((row) => row.querySelector('input').checked)
+    .map((row) => row.querySelector('input').dataset.roomLevel);
+  if (!levelIds.length) {
+    createRoomStatus.textContent = 'Selecciona al menos un nivel.';
+    createRoomStatus.className = 'form-status is-error';
+    return;
+  }
+
+  let code = '';
+  do {
+    code = String(Math.floor(1000 + Math.random() * 9000));
+  } while (getStoredRoom()?.code === code);
+
+  localStorage.setItem(ROOM_STORAGE_KEY, JSON.stringify({
+    code,
+    levelIds,
+    createdAt: new Date().toISOString()
+  }));
+  createRoomStatus.textContent = `Sala creada. Comparte el código ${code} con los alumnos.`;
+  createRoomStatus.className = 'form-status is-success';
+});
+
+joinRoomForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const enteredCode = joinRoomForm.elements.roomCode.value.trim();
+  const room = getStoredRoom();
+  if (!room || room.code !== enteredCode) {
+    joinRoomStatus.textContent = 'El código no coincide con ninguna sala activa.';
+    joinRoomStatus.className = 'form-status is-error';
+    return;
+  }
+
+  joinRoomStatus.textContent = 'Te uniste a la sala. Ya puedes comenzar.';
+  joinRoomStatus.className = 'form-status is-success';
+  resetGameState();
+  setView('instructions');
 });
 
 themeToggle.addEventListener('change', () => {
@@ -1211,6 +1463,48 @@ motionToggle.addEventListener('change', () => {
   const motion = motionToggle.checked ? 'on' : 'off';
   document.body.dataset.motion = motion === 'off' ? 'reduced' : 'full';
   localStorage.setItem('finanquiz-motion', motion);
+});
+
+passwordToggle.addEventListener('change', () => {
+  passwordForm.hidden = !passwordToggle.checked;
+  localStorage.setItem('finanquiz-show-password-form', String(passwordToggle.checked));
+  if (!passwordToggle.checked) {
+    passwordForm.reset();
+    passwordStatus.textContent = '';
+  }
+});
+
+jsonFileInput.addEventListener('change', () => {
+  if (!isAdminSession()) {
+    jsonFileInput.value = '';
+    jsonStatus.textContent = 'Solo el administrador puede cargar plantillas JSON.';
+    jsonStatus.className = 'form-status is-error';
+    updateAdminOnlyOptions();
+    return;
+  }
+
+  const file = jsonFileInput.files[0];
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.json')) {
+    jsonStatus.textContent = 'Selecciona un archivo con extension .json.';
+    jsonStatus.className = 'form-status is-error';
+    jsonFileInput.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.addEventListener('load', () => {
+    try {
+      const importedData = JSON.parse(reader.result);
+      localStorage.setItem('finanquiz-imported-json', JSON.stringify(importedData));
+      jsonStatus.textContent = `Archivo "${file.name}" guardado localmente.`;
+      jsonStatus.className = 'form-status is-success';
+    } catch (error) {
+      jsonStatus.textContent = 'El archivo no contiene un JSON valido.';
+      jsonStatus.className = 'form-status is-error';
+    }
+  });
+  reader.readAsText(file);
 });
 
 passwordForm.addEventListener('submit', (event) => {
@@ -1259,6 +1553,10 @@ passwordForm.addEventListener('submit', (event) => {
   }
 
   profile.password = newPassword;
+  const users = getStoredUsers().map((user) => (
+    user.email === profile.email ? profile : user
+  ));
+  saveUsers(users);
   localStorage.setItem('finanquiz-profile', JSON.stringify(profile));
   passwordForm.reset();
   passwordStatus.textContent = 'Contraseña actualizada correctamente.';
@@ -1268,6 +1566,7 @@ passwordForm.addEventListener('submit', (event) => {
 resetPreferencesBtn.addEventListener('click', () => {
   localStorage.removeItem('finanquiz-theme');
   localStorage.removeItem('finanquiz-motion');
+  localStorage.removeItem('finanquiz-show-password-form');
   applyPreferences();
   resetGameState();
   passwordForm.reset();
@@ -1307,4 +1606,4 @@ window.addEventListener('resize', () => {
 });
 
 applyPreferences();
-setView('home');
+setView('login');

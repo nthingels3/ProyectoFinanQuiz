@@ -16,12 +16,12 @@
 
     <header class="topbar">
       <button class="brand" type="button" data-view="home" aria-label="Volver al menu principal">
-        <img src="../Recursos%20graficos/Logo.png" alt="FinanQuiz">
+        <img src="assets/Logo.png" alt="FinanQuiz">
       </button>
       <nav class="main-nav" aria-label="Navegacion principal">
-        <button type="button" data-view="login">Unirse</button>
+        <button type="button" data-view="join-room">Unirse</button>
         <button type="button" data-view="options">Opciones</button>
-        <button type="button" data-view="register">Crear</button>
+        <button type="button" data-view="create-room" id="create-room-nav">Crear</button>
       </nav>
     </header>
 
@@ -34,16 +34,56 @@
 
         <div class="home-cards">
           <article>
-            <img src="../Recursos%20graficos/Rectangle 69.png" alt="Grafico de economia">
+            <img src="assets/Rectangle 69.png" alt="Grafico de economia">
             <h2>¿Qué está pasando con la economía?</h2>
             <p>Aprende sobre las acciones de economía en el temario pre-creado “Acciones e inversiones”</p>
           </article>
           <article>
-            <img src="../Recursos%20graficos/Rectangle 70.png" alt="Informacion">
+            <img src="assets/Rectangle 70.png" alt="Informacion">
             <h2>¿No sabes como empezar?</h2>
-            <p>Si necesitas ayuda por el funcionamiento o dudas, presiona el icono de soporte a la izquierda.</p>
+            <p>Para poder continuar pedile el codigo de sala a tu docente de turno.</p>
           </article>
         </div>
+      </section>
+
+      <section class="view form-view room-view" data-screen="create-room" aria-labelledby="create-room-title" hidden>
+        <form class="auth-form room-form room-create-form" id="create-room-form" novalidate>
+          <button class="room-back-button" type="button" data-view="home">Atrás</button>
+          <div class="form-heading">
+            <span class="step">SALA ADMINISTRADOR</span>
+            <h2 id="create-room-title">Plantillas</h2>
+          </div>
+          <div class="room-list-heading">
+            <span>Plantillas</span>
+            <strong>Educación Financiera</strong>
+          </div>
+          <div class="room-level-list" id="room-level-list">
+            <label class="room-level-row"><span class="room-level-number">Nivel<br>N°1</span><span class="room-level-details">Tema: Verdadero o falso<br>Cantidad de preguntas: 5</span><span class="room-select-control"><input type="checkbox" data-room-level="level-1" checked><span>Seleccionar</span></span><button type="button" class="room-move-up" aria-label="Subir nivel">↑</button><button type="button" class="room-move-down" aria-label="Bajar nivel">↓</button></label>
+            <label class="room-level-row"><span class="room-level-number">Nivel<br>N°2</span><span class="room-level-details">Tema: Conecta conceptos<br>Cantidad de preguntas: 5</span><span class="room-select-control"><input type="checkbox" data-room-level="level-2" checked><span>Seleccionar</span></span><button type="button" class="room-move-up" aria-label="Subir nivel">↑</button><button type="button" class="room-move-down" aria-label="Bajar nivel">↓</button></label>
+            <label class="room-level-row"><span class="room-level-number">Nivel<br>N°3</span><span class="room-level-details">Tema: Presupuesto<br>Cantidad de preguntas: 5</span><span class="room-select-control"><input type="checkbox" data-room-level="level-3" checked><span>Seleccionar</span></span><button type="button" class="room-move-up" aria-label="Subir nivel">↑</button><button type="button" class="room-move-down" aria-label="Bajar nivel">↓</button></label>
+            <label class="room-level-row"><span class="room-level-number">Nivel<br>N°4</span><span class="room-level-details">Tema: Semáforo financiero<br>Cantidad de preguntas: 5</span><span class="room-select-control"><input type="checkbox" data-room-level="level-4" checked><span>Seleccionar</span></span><button type="button" class="room-move-up" aria-label="Subir nivel">↑</button><button type="button" class="room-move-down" aria-label="Bajar nivel">↓</button></label>
+            <label class="room-level-row"><span class="room-level-number">Nivel<br>N°5</span><span class="room-level-details">Tema: Reto de prioridades<br>Cantidad de preguntas: 5</span><span class="room-select-control"><input type="checkbox" data-room-level="level-5" checked><span>Seleccionar</span></span><button type="button" class="room-move-up" aria-label="Subir nivel">↑</button><button type="button" class="room-move-down" aria-label="Bajar nivel">↓</button></label>
+          </div>
+          <div class="room-footer-actions">
+            <button class="room-action-button" type="submit">Generar código</button>
+          </div>
+          <p class="form-status" id="create-room-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="view form-view room-view" data-screen="join-room" aria-labelledby="join-room-title" hidden>
+        <form class="auth-form room-form" id="join-room-form" novalidate>
+          <div class="form-heading">
+            <span class="step">SALA DE JUEGO</span>
+            <h2 id="join-room-title">Unirse a una sala</h2>
+            <p>Ingresa el código de 4 dígitos que compartió el administrador.</p>
+          </div>
+          <label for="room-code">Código de sala <span>*</span></label>
+          <input id="room-code" name="roomCode" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="0000" required>
+          <button class="button button-primary form-submit" type="submit">Unirse</button>
+          <p class="form-status" id="join-room-status" role="status" aria-live="polite"></p>
+          <button class="back-link" type="button" data-view="home">← Volver al menú</button>
+        </form>
       </section>
 
       <section class="view options-view" data-screen="options" aria-labelledby="options-title" hidden>
@@ -78,9 +118,31 @@
                 <span class="sr-only">Activar animaciones</span>
               </label>
             </div>
+
+            <div class="setting-row">
+              <div>
+                <h2>Cambiar contraseña</h2>
+                <p>Muestra el formulario solo cuando quieras actualizarla.</p>
+              </div>
+              <label class="toggle-control" for="password-toggle">
+                <input id="password-toggle" type="checkbox">
+                <span class="toggle-slider" aria-hidden="true"></span>
+                <span class="sr-only">Mostrar cambio de contraseña</span>
+              </label>
+            </div>
           </div>
 
-          <form class="password-form" id="password-form" novalidate>
+          <div class="options-import" id="options-import">
+            <div class="options-section-heading">
+              <h2>Subir Plantilla en formato JSON</h2>
+              <p>Sube tu propia plantilla para utilizarla en la sala</p>
+            </div>
+            <label class="file-picker" for="json-file">Cargar plantilla .json</label>
+            <input id="json-file" type="file" accept=".json,application/json">
+            <p class="form-status" id="json-status" role="status" aria-live="polite"></p>
+          </div>
+
+          <form class="password-form" id="password-form" novalidate hidden>
             <div class="options-section-heading">
               <h2>Cambiar contraseña</h2>
               <p>Usa al menos 6 caracteres.</p>
@@ -171,7 +233,7 @@
           </div>
 
           <label for="login-email">Usuario o email <span>*</span></label>
-          <input id="login-email" name="email" type="email" placeholder="tu@email.com" autocomplete="email" required>
+          <input id="login-email" name="email" type="text" placeholder="Tu usuario o email" autocomplete="username" required>
           <small class="field-error" data-error-for="login-email"></small>
 
           <label for="login-password">Contrasena <span>*</span></label>
@@ -201,7 +263,7 @@
             <p>Crea tu perfil en menos de un minuto.</p>
           </div>
 
-          <label for="register-name">Nombre completo <span>*</span></label>
+          <label for="register-name">Nombre de usuario <span>*</span></label>
           <input id="register-name" name="name" type="text" placeholder="Tu nombre" autocomplete="name" required>
           <small class="field-error" data-error-for="register-name"></small>
 
